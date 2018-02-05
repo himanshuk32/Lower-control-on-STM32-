@@ -1,99 +1,29 @@
-/**
-  ******************************************************************************
-  * File Name          : main.c
-  * Description        : Main program body
-  ******************************************************************************
-  ** This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
-  * COPYRIGHT(c) 2017 STMicroelectronics
-  *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
 
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 
-/* USER CODE BEGIN PV */
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);                                    
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-                                
-                                
 
-/* USER CODE BEGIN PFP */
-/* Private function prototypes -----------------------------------------------*/
-
-/* USER CODE END PFP */
-
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-void AnalogWrite(uint32_t ReqRPM1,uint32_t ReqRPM2,uint32_t ReqRPM3, uint32_t MaxRPM);
+uint32_t MaxValue;
+uint32_t Value;
+uint16_t Resolution_for_PWM;
+uint32_t Channel_Of_Timer;
+	
+void AnalogWrite(uint32_t val, uint32_t Maxval,uint16_t Resolution,TIM_HandleTypeDef *htim,uint32_t Channel_Of_Timer);
+		
 int main(void)
 {
 
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration----------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
@@ -107,14 +37,6 @@ int main(void)
 	HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_4);
-
-
-  /* USER CODE BEGIN 2 */
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
 	
 	HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_2);
@@ -126,23 +48,36 @@ int main(void)
 	HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_4);
 
-
+  AnalogWrite(Value,MaxValue,Resolution_for_PWM,&htim1,Channel_Of_Timer);
+  AnalogWrite(Value,MaxValue,Resolution_for_PWM,&htim2,Channel_Of_Timer);
 	
-  while (1)
+	while (1)
   {
-   AnalogWrite(100,150,200,250);
+   
   }
-  /* USER CODE END 3 */
 
 }
 
 
-		void AnalogWrite(uint32_t ReqRPM1,uint32_t ReqRPM2,uint32_t ReqRPM3, uint32_t MaxRPM)//,TIM_HandleTypeDef *htim)
+void AnalogWrite(uint32_t val, uint32_t Maxval,uint16_t Resolution,TIM_HandleTypeDef *htim,uint32_t Channel_Of_Timer)
+{
+		switch(Channel_Of_Timer)
 	{
-		htim2.Instance->CCR1=ReqRPM1*100/MaxRPM;
-		htim2.Instance->CCR2=ReqRPM2*100/MaxRPM;
-		htim2.Instance->CCR3=ReqRPM3*100/MaxRPM;
+		case TIM_CHANNEL_1 :
+		                    htim->Instance->CCR1=val*Resolution/Maxval;
+		                    break;
+	  case TIM_CHANNEL_2 :
+		                    htim->Instance->CCR2=val*Resolution/Maxval;
+		                    break;
+		case TIM_CHANNEL_3 :
+		                    htim->Instance->CCR3=val*Resolution/Maxval;
+		                    break;
+		case TIM_CHANNEL_4 :
+		                    htim->Instance->CCR4=val*Resolution/Maxval;
+		                    break;
+				
 	}
+}
 
 /** System Clock Configuration
 */
@@ -220,7 +155,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 180;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 100;
+  htim1.Init.Period = Resolution_for_PWM;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
@@ -300,7 +235,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 180;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 100;
+  htim2.Init.Period = Resolution_for_PWM;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
