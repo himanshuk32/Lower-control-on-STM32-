@@ -1,0 +1,27 @@
+--cpu=Cortex-M4.fp
+"maybefinal2\stm32f4xx_hal_tim_ex.o"
+"maybefinal2\stm32f4xx_hal_i2c.o"
+"maybefinal2\stm32f4xx_hal_pwr.o"
+"maybefinal2\stm32f4xx_hal_i2c_ex.o"
+"maybefinal2\stm32f4xx_hal_cortex.o"
+"maybefinal2\stm32f4xx_hal_flash.o"
+"maybefinal2\stm32f4xx_hal_flash_ex.o"
+"maybefinal2\stm32f4xx_hal_gpio.o"
+"maybefinal2\stm32f4xx_hal_flash_ramfunc.o"
+"maybefinal2\stm32f4xx_hal.o"
+"maybefinal2\stm32f4xx_hal_dma.o"
+"maybefinal2\stm32f4xx_hal_tim.o"
+"maybefinal2\stm32f4xx_hal_rcc.o"
+"maybefinal2\stm32f4xx_hal_pwr_ex.o"
+"maybefinal2\stm32f4xx_hal_uart.o"
+"maybefinal2\stm32f4xx_hal_rcc_ex.o"
+"maybefinal2\stm32f4xx_hal_dma_ex.o"
+"maybefinal2\stm32f4xx_hal_msp.o"
+"maybefinal2\main.o"
+"maybefinal2\stm32f4xx_it.o"
+"maybefinal2\system_stm32f4xx.o"
+"maybefinal2\startup_stm32f446xx.o"
+--library_type=microlib --strict --scatter "MaybeFinal2\MaybeFinal2.sct"
+--diag_suppress=L6329 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "MaybeFinal2.map" -o MaybeFinal2\MaybeFinal2.axf
